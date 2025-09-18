@@ -1,2 +1,1 @@
-# shadings
-just something to plop a shader to
+This thing is mainly just for setting up a rendering context for doing some shaders. Just run e.g. ```python -m http.server``` or whatever you prefer using.
