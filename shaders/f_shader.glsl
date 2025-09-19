@@ -15,7 +15,7 @@ void main() {
 
     outColor = vec4(uv, 0.5+sin(u_time)/2.0, 1.0);
     float brdr = sin(u_time)/2.0 + 0.5;
-    float brdr2 = sin(u_time*1.7)/2.0 + 0.5;
+    float brdr2 = sin(u_time * 2.0)/2.0 + 0.5;
 
     if (uv.y > brdr && uv.y < brdr + 0.01) {
         outColor = vec4(0.0, 0.0, 0.0, 1.0);
