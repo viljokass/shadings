@@ -1,1 +1,1 @@
-This thing is mainly just for setting up a rendering context for doing some shaders. Just run e.g. ```python -m http.server``` or whatever you prefer using.
+This thing is mainly just for setting up a rendering context for doing some shaders. Using the ```run.sh``` assumes you have python and its http.server module installed but you can use whatever you prefer.
