@@ -73,7 +73,8 @@ async function main() {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([
-            -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+            -1, -1, 1, -1, -1, 1, 
+            -1, 1, 1, -1, 1, 1,
         ]), gl.STATIC_DRAW
     );
 
@@ -88,14 +89,11 @@ async function main() {
     gl.bindVertexArray(vao);
 
     gl.uniform2f(resolution_loc, gl.canvas.width, gl.canvas.height);
-
-    let time = 0.0;
-    let start_time = document.timeline.currentTime;
     
     resize_callback();
     window.requestAnimationFrame(render)
     function render(time) {
-        time = (document.timeline.currentTime - start_time) * 0.001;
+        time *= 0.001;
         gl.uniform1f(time_loc, time);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         window.requestAnimationFrame(render);
@@ -106,8 +104,9 @@ async function main() {
         canvas.height = window.innerHeight;
         gl.canvas.width = canvas.width;
         gl.canvas.height = canvas.height;
-        // Update uniforms
+        // Update uniforms and viewport
         gl.uniform2f(resolution_loc, gl.canvas.width, gl.canvas.height);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
     
     window.onresize = function () {
