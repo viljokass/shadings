@@ -44,9 +44,9 @@ const material chrome = material(
 const material matte_red = material(
     0.0,
     0.0,
-    vec3(1.0, 0.0, 0.0),
-    vec3(1.0, 0.0, 0.0),
-    vec3(1.0, 0.0, 0.0)
+    vec3(1.0, 0.0, 0.0) * 0.005,
+    vec3(1.0, 0.0, 0.0) * 0.67,
+    vec3(1.0, 0.0, 0.0) * 0.01
 );
 
 struct surface {
@@ -85,19 +85,37 @@ surface surface_union(surface a, surface b) {
 
 surface map(vec3 p) {
     p.yz *= rotate(PI/8.);
+    p.xz *= rotate(sin(u_time) * PI/16.);
+    
     surface boxx = box(
-        p - vec3(-2.0, 1.0, 7.0),
-        vec3(2.0, 2.0, 2.0),
-        matte_red
+        p - vec3(-1.0, 1.0, 0.0),
+        vec3(0.3),
+        gold
     );
     surface floor = box(
-        p - vec3(0.0, -2.0, 3.0),
-        vec3(10.0, 0.1, 10.0),
+        p - vec3(0.0, -2.0, 0.0),
+        vec3(4.0, 0.1, 4.0),
+        chrome
+    );
+    surface wall_l = box(
+        p - vec3(-4.0, 0.0, 0.0),
+        vec3(0.1, 2.0, 2.0),
+        chrome
+    );
+    surface wall_b = box(
+        p - vec3(0.0, 0.0, 4.0),
+        vec3(2.0, 2.0, 0.1),
         chrome
     );
     return surface_union(
-        boxx,
-        floor
+        surface_union(
+            boxx,
+            floor
+        ),
+        surface_union(
+            wall_b,
+            wall_l
+        )
     );
 }
 
@@ -175,10 +193,12 @@ void main() {
     vec3 col = vec3(0.0);
     float reflectance;
 
-    for (int i = 0; i < 12; i++) {
+    // Work on this. It's wrong as hell
+    for (int i = 0; i < 3; i++) {
+        vec3 ncol;
         ray_hit result = raymarch(ray_origin, ray_dir);
-        if (!result.hit) break;
-        vec3 ncol = shade(ray_origin, ray_dir, result.p, result.normal, result.material);
+        if (!result.hit) ncol = vec3(0.0);
+        else ncol = shade(ray_origin, ray_dir, result.p, result.normal, result.material);
         if (i == 0) {
             col = ncol;
         }
