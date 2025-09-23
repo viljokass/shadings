@@ -10,7 +10,7 @@ uniform float u_time;
 out vec4 outColor;
 
 const float MAX_DIST = 300.0;
-const float EPSILON = 0.0005;
+const float EPSILON = 0.005;
 const int MAX_ITER = 250;
 
 vec3 campos;
@@ -43,11 +43,12 @@ const material chrome = material(
 
 const material matte_red = material(
     0.0,
-    0.0,
+    32.0,
     vec3(1.0, 0.0, 0.0) * 0.005,
     vec3(1.0, 0.0, 0.0) * 0.67,
-    vec3(1.0, 0.0, 0.0) * 0.01
+    vec3(1.0, 0.0, 0.0) * 1.0
 );
+
 
 struct surface {
     float sdfv;
@@ -84,13 +85,14 @@ surface surface_union(surface a, surface b) {
 }
 
 surface map(vec3 p) {
-    p.yz *= rotate(PI/8.);
-    p.xz *= rotate(sin(u_time) * PI/16.);
     
-    surface boxx = box(
-        p - vec3(-1.0, 1.0, 0.0),
-        vec3(0.3),
-        gold
+    p.yz *= rotate(sin(u_time * 2.0)*PI/16. + PI/10.0);
+    p.xz *= rotate(sin(u_time)*PI/16. + PI/4.0);
+    
+    surface ball = sphere(
+        p - vec3(-1.0, 0.5, 0.0),
+        0.75,
+        matte_red
     );
     surface floor = box(
         p - vec3(0.0, -2.0, 0.0),
@@ -99,17 +101,17 @@ surface map(vec3 p) {
     );
     surface wall_l = box(
         p - vec3(-4.0, 0.0, 0.0),
-        vec3(0.1, 2.0, 2.0),
+        vec3(0.1, 2.0, 4.0),
         chrome
     );
     surface wall_b = box(
         p - vec3(0.0, 0.0, 4.0),
-        vec3(2.0, 2.0, 0.1),
+        vec3(4.0, 2.0, 0.1),
         chrome
     );
     return surface_union(
         surface_union(
-            boxx,
+            ball,
             floor
         ),
         surface_union(
@@ -185,6 +187,7 @@ void main() {
 
     campos = vec3(0.0, 0.0, -8.0);
     ligpos = campos + vec3(0.0, 3.0, 0.0);
+    ligpos.xz *= rotate(u_time*.4);
     vec3 screen = vec3(uv, campos.z + 1.0);
     
     vec3 ray_origin = campos;
@@ -194,11 +197,14 @@ void main() {
     float reflectance;
 
     // Work on this. It's wrong as hell
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 10; i++) {
         vec3 ncol;
         ray_hit result = raymarch(ray_origin, ray_dir);
-        if (!result.hit) ncol = vec3(0.0);
+        // if (!result.hit) ncol = vec3(0.0, 0.5, 0.9); // Or rather, ambient
+        if (!result.hit) ncol = vec3(0.2, 0.5, 0.8); // Or rather, ambient
         else ncol = shade(ray_origin, ray_dir, result.p, result.normal, result.material);
+        /*
+        */
         if (i == 0) {
             col = ncol;
         }
@@ -210,6 +216,7 @@ void main() {
                 reflectance);
         }
         if (!(result.material.reflectance > 0.1)) break;
+
         
         ray_dir = normalize(reflect(normalize(result.p - ray_origin), result.normal));
         ray_origin = result.p + EPSILON*result.normal;

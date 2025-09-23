@@ -53,10 +53,13 @@ async function main() {
 
     const get_src = url => fetch(url).then(r => r.text());
 
+    // Swap this out for other shaders
+    fragment_source = "/f_shaders/new_shader.glsl"
+
     const shader = create_shader_program(
         gl, 
-        await get_src("/shaders/v_shader.glsl"), 
-        await get_src("/shaders/f_shader.glsl")
+        await get_src("/v_shader.glsl"),
+        await get_src(fragment_source)
     );
 
     const pos_att_loc = gl.getAttribLocation(shader, "a_position");
